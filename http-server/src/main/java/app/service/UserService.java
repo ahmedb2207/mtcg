@@ -1,36 +1,81 @@
 package app.service;
 
-import app.model.Weather;
+import app.model.User;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.*;
 
 public class UserService {
-    private List<User> userData;
+    public void addUser(User user){
+        try {
+            Connection connection = DriverManager.getConnection(
+                    "jdbc:postgresql://localhost:5432/mtcg",
+                    "postgres",
+                    "xgrtm625");
 
-    public WeatherService() {
-        userData = new ArrayList<>();
-        userData.add(new User("Vienna", "Password"));
-        userData.add(new User("Ahmed","Password"));
-        userData.add(new Weather(3,"Tokyo", 12.f));
+            PreparedStatement addUser = connection.prepareStatement(
+                    "INSERT INTO users (username, password, token) " +
+                            "VALUES (?,?,?);"
+            );
+            addUser.setString(1,user.getUsername());
+            addUser.setString(2, user.getPassword());
+            addUser.setString(3, user.getToken());
+            addUser.execute();
+            connection.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
+   public User getUserdb(String username) {
+       try {
+           Connection connection = DriverManager.getConnection(
+                   "jdbc:postgresql://localhost:5432/mtcg",
+                   "postgres",
+                   "xgrtm625");
+           PreparedStatement statement = connection.prepareStatement("""
+                SELECT loggedin, password
+                FROM users
+                WHERE username=?
+                """);
+           statement.setString( 1, username );
+           ResultSet resultSet = statement.executeQuery();
+           statement.close();
 
-    // GET /weather/:id
-    public Weather getWeather(Integer ID) {
-        Weather foundWaether = weatherData.stream()
-                .filter(waether -> ID == waether.getId())
-                .findAny()
-                .orElse(null);
+           if( resultSet.next() ) {
+               return new User(username, resultSet.getString(2),resultSet.getBoolean(1)) ;
 
-        return foundWaether;}
+       }
 
-    // GET /weather
-    public List<Weather> getWeather() {
-        return weatherData;
-    }
+   }
+       catch (SQLException e) {
+           e.printStackTrace();
+       }
+    return null;
 
-    // POST /weather
-    public void addWeather(Weather weather) {
-        weatherData.add(weather);
-    }
+   }
+
+   public void login(String username){
+       try {
+           Connection connection = DriverManager.getConnection(
+                   "jdbc:postgresql://localhost:5432/mtcg",
+                   "postgres",
+                   "xgrtm625");
+           PreparedStatement statement = connection.prepareStatement("""
+                UPDATE users
+                SET loggedin =?
+                WHERE username=?;
+                """);
+           statement.setBoolean( 1, true );
+           statement.setString( 2, username );
+           statement.execute();
+           connection.close();
+
+
+       } catch (SQLException throwables) {
+           throwables.printStackTrace();
+       }
+   }
+
+
+
 }

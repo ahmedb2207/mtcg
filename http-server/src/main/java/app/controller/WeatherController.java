@@ -10,25 +10,25 @@ import server.Response;
 
 import java.util.List;
 
-public class UserController extends Controller {
-    private UserService userService;
+public class WeatherController extends Controller {
+    private WeatherService weatherService;
 
-    public UserController(UserService userService) {
+    public WeatherController(WeatherService weatherService) {
         super();
-        this.userService = userService;
+        this.weatherService = weatherService;
     }
 
     // GET /weather
-    public Response getUser() {
+    public Response getWeather() {
         try {
-            List userData = this.userService.getUser();
+            List weatherData = this.weatherService.getWeather();
             // "[ { \"id\": 1, \"city\": \"Vienna\", \"temperature\": 9.0 }, { ... }, { ... } ]"
-            String userDataJSON = this.getObjectMapper().writeValueAsString(userDataData);
+            String weatherDataJSON = this.getObjectMapper().writeValueAsString(weatherData);
 
             return new Response(
                 HttpStatus.OK,
                 ContentType.JSON,
-                userDataJSON
+                weatherDataJSON
             );
         } catch (JsonProcessingException e) {
             e.printStackTrace();
@@ -41,13 +41,13 @@ public class UserController extends Controller {
     }
 
     // POST /weather
-    public Response addUser(Request request) {
-        User user = null;
+    public Response addWeather(Request request) {
+        Weather weather = null;
         try {
 
             // request.getBody() => "{ \"id\": 4, \"city\": \"Graz\", ... }
-            user = this.getObjectMapper().readValue(request.getBody(), User.class);
-            this.userService.addUser(user);
+            weather = this.getObjectMapper().readValue(request.getBody(), Weather.class);
+            this.weatherService.addWeather(weather);
 
             return new Response(
                 HttpStatus.CREATED,
@@ -62,6 +62,7 @@ public class UserController extends Controller {
             HttpStatus.INTERNAL_SERVER_ERROR,
             ContentType.JSON,
             "{ \"message\" : \"Internal Server Error\" }"
+      //  protected String id;
         );
     }
 }
