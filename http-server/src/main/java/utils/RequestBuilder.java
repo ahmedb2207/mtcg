@@ -10,6 +10,7 @@ import java.util.Locale;
 public class RequestBuilder {
     static final String CONTENT_TYPE = "Content-Type: ";
     static final String CONTENT_LENGTH = "Content-Length: ";
+    static final String AUTHORIZATION = "Authorization: ";
 
     public static Request buildRequest(BufferedReader in) throws IOException {
         String line = in.readLine();
@@ -17,12 +18,9 @@ public class RequestBuilder {
 
         if (line != null) {
             String[] splitFirstLine = line.split(" ");
-            Boolean hasParams = splitFirstLine[1].indexOf("?") != -1;
-
 
             request.setMethod(getMethod(splitFirstLine));
-            request.setPathname(getPathname(splitFirstLine, hasParams));
-            request.setParams(getParams(splitFirstLine, hasParams));
+            request.setPathname(getPathname(splitFirstLine));
 
             while (!line.isEmpty()) {
                 line = in.readLine();
@@ -32,18 +30,24 @@ public class RequestBuilder {
                 if (line.startsWith(CONTENT_TYPE)) {
                     request.setContentType(getContentType(line));
                 }
-            }
-
-            if (request.getMethod() == Method.POST || request.getMethod() == Method.PUT) {
-                int asciChar;
-                for (int i = 0; i < request.getContentLength(); i++) {
-                    asciChar = in.read();
-                    String body = request.getBody();
-                    request.setBody(body + ((char) asciChar));
+                if (line.startsWith(AUTHORIZATION)) {
+                    request.setAuthorization(getAuthorization(line));
+                    request.setUsernameInToken(request.getAuthorization().split("-")[0].split(" ")[1]);
                 }
             }
-        }
 
+            if (!request.getPathname().equals("/battles")) {
+                if (request.getMethod() == Method.POST || request.getMethod() == Method.PUT) {
+                    int asciChar;
+                    for (int i = 0; i < request.getContentLength(); i++) {
+                        asciChar = in.read();
+                        String body = request.getBody();
+                        request.setBody(body + ((char) asciChar));
+                    }
+                }
+
+            }
+        }
         return request;
     }
 
@@ -51,21 +55,8 @@ public class RequestBuilder {
         return Method.valueOf(splitFirstLine[0].toUpperCase(Locale.ROOT));
     }
 
-    private static String getPathname(String[] splitFirstLine, Boolean hasParams) {
-        if (hasParams) {
-            return splitFirstLine[1].split("\\?")[0];
-        }
-
+    private static String getPathname(String[] splitFirstLine) {
         return splitFirstLine[1];
-    }
-
-
-    private static String getParams(String[] splittedFirstLine, Boolean hasParams) {
-        if (hasParams) {
-            return splittedFirstLine[1].split("\\?")[1];
-        }
-
-        return "";
     }
 
     private static Integer getContentLength(String line) {
@@ -75,4 +66,10 @@ public class RequestBuilder {
     private static String getContentType(String line) {
         return line.substring(CONTENT_TYPE.length());
     }
+
+
+    private static String getAuthorization(String line) {
+        return line.substring(AUTHORIZATION.length());
+    }
+
 }
