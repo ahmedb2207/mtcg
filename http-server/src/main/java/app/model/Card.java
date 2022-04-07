@@ -3,23 +3,7 @@ import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.Getter;
 import lombok.Setter;
 public class Card {
-    public enum ElementType {
-        Fire,
-        Normal,
-        Water
-    }
 
-    public enum CardType {
-        Goblin,
-        Dragon,
-        Wizzard,
-        Ork,
-        Knight,
-        Spell,
-        Kraken,
-        Elf,
-        Troll
-    }
 
     @Getter
     @Setter
@@ -41,12 +25,11 @@ public class Card {
     private CardType cardtype;
     @Getter
     @Setter
-    @JsonAlias({"Package_Id"})
-    private int package_id;
+    private String package_id;
     @Getter
     @Setter
-    @JsonAlias({"Type"})
-    private String Type;
+    private String username;
+    public Card() {}
 
     public Card(String id, String name, int damage) {
         this.id = id;

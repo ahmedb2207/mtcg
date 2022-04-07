@@ -8,10 +8,11 @@ public class Server {
     private ServerSocket serverSocket;
     private int port;
     private ServerApp app;
-
+    public boolean isRunning;
     public Server(int port, ServerApp app) {
         this.port = port;
         this.app = app;
+        this.isRunning=false;
     }
 
     public void start() throws IOException {
@@ -29,6 +30,7 @@ public class Server {
                 RequestHandler requestHandler = new RequestHandler(clientSocket, this.app);
                 Thread thread = new Thread(requestHandler);
                 thread.start();
+                this.isRunning= true;
             } catch (IOException e) {
                 e.printStackTrace();
             }
