@@ -9,4 +9,4 @@ Controllers aufgerufen. Die Controller leiten die Anfragen
 an die entsprechenden Service-Klassen weiter. In der 
 Service-Klasse wird der Request bearbeitet und in 
 die Datenbank eingetragen. Anschließend schickt der 
-Controller eine Response an den Client zurück
+Controller eine Response an den Client zurück.
